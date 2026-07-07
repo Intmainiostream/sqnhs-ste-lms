@@ -28,6 +28,9 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/users', [AdminController::class, 'users'])->name('users');
+        Route::get('/requests', [AdminController::class, 'requests'])->name('requests');
+        Route::get('/records', [AdminController::class, 'records'])->name('records');
         Route::post('/students/{student}/approve', [AdminController::class, 'approve'])->name('students.approve');
         Route::post('/students/{student}/reject', [AdminController::class, 'reject'])->name('students.reject');
     });

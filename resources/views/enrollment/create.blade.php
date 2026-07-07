@@ -3,6 +3,9 @@
 @section('title', 'Enrollment Form')
 
 @section('content')
+    <h1 class="text-center text-green-900 font-bold text-2xl mb-1">Enrollment Form</h1>
+    <p class="text-center text-gray-500 text-sm mb-6">Basic Education Enrollment — SQNHS STE Program</p>
+
     <form method="POST" action="{{ route('enroll.store') }}" class="space-y-8">
         @csrf
 
@@ -123,22 +126,22 @@
         {{-- CURRENT ADDRESS --}}
         <div>
             <h2 class="text-green-800 font-bold text-sm uppercase tracking-wide border-b border-green-100 pb-2 mb-4">
-                Current Address
+                Current Address <span class="text-red-500 normal-case font-normal lowercase">(required)</span>
             </h2>
             <div class="grid sm:grid-cols-3 gap-4 mb-4">
-                <input type="text" name="current_house_no" value="{{ old('current_house_no') }}" placeholder="House No."
+                <input type="text" name="current_house_no" value="{{ old('current_house_no') }}" placeholder="House No." required
                        class="rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
-                <input type="text" name="current_street" value="{{ old('current_street') }}" placeholder="Sitio/Street"
+                <input type="text" name="current_street" value="{{ old('current_street') }}" placeholder="Sitio/Street" required
                        class="rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
-                <input type="text" name="current_barangay" value="{{ old('current_barangay') }}" placeholder="Barangay"
+                <input type="text" name="current_barangay" value="{{ old('current_barangay') }}" placeholder="Barangay" required
                        class="rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
             </div>
             <div class="grid sm:grid-cols-3 gap-4">
-                <input type="text" name="current_city" value="{{ old('current_city') }}" placeholder="Municipality/City"
+                <input type="text" name="current_city" value="{{ old('current_city') }}" placeholder="Municipality/City" required
                        class="rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
-                <input type="text" name="current_province" value="{{ old('current_province') }}" placeholder="Province"
+                <input type="text" name="current_province" value="{{ old('current_province') }}" placeholder="Province" required
                        class="rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
-                <input type="text" name="current_zip" value="{{ old('current_zip') }}" placeholder="Zip Code"
+                <input type="text" name="current_zip" value="{{ old('current_zip') }}" placeholder="Zip Code" required
                        class="rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500">
             </div>
         </div>
@@ -173,7 +176,7 @@
         {{-- PARENT/GUARDIAN INFO --}}
         <div>
             <h2 class="text-green-800 font-bold text-sm uppercase tracking-wide border-b border-green-100 pb-2 mb-4">
-                Parent/Guardian Information
+                Parent/Guardian Information <span class="text-red-500 normal-case font-normal lowercase">(fill at least one — father, mother, or guardian)</span>
             </h2>
 
             <div class="grid sm:grid-cols-2 gap-4 mb-4">

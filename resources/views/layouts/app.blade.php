@@ -6,28 +6,31 @@
     <title>@yield('title', 'SQNHS STE LMS')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-green-50 min-h-screen relative">
+<body class="bg-gray-50" x-data="{ sidebarOpen: false }" @keydown.escape.window="sidebarOpen = false">
+
     @include('partials.loading-screen')
-    @include('partials.atoms-bg')
+    @include('partials.success-modal')
 
-    <nav class="bg-green-700 text-white px-6 py-4 flex justify-between items-center shadow relative z-10">
+    @include('admin.partials.sidebar', ['pendingCount' => \App\Models\Student::where('enrollment_status', 'pending')->count()])
+
+    <header class="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-30">
         <div class="flex items-center gap-3">
-            <img src="{{ asset('images/sqnhs-logo.png') }}" alt="Logo" class="h-8 w-8 object-contain">
-            <span class="font-semibold">SQNHS STE LMS</span>
+            <button @click="sidebarOpen = true" class="p-2 rounded-lg hover:bg-gray-100 transition">
+                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <span class="font-semibold text-green-800 text-sm sm:text-base">SQNHS STE LMS</span>
         </div>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="text-sm hover:underline">Log out</button>
-        </form>
-    </nav>
-
-    <main class="max-w-5xl mx-auto px-6 py-8 relative z-10">
-        @if (session('success'))
-            <div class="mb-4 p-3 rounded-lg bg-green-100 border border-green-300 text-green-800 text-sm">
-                {{ session('success') }}
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-green-700 text-white flex items-center justify-center text-xs font-bold">
+                {{ strtoupper(substr(auth()->user()->username ?? 'A', 0, 2)) }}
             </div>
-        @endif
+            <span class="text-sm text-gray-600 hidden sm:inline">{{ auth()->user()->username ?? 'Admin' }}</span>
+        </div>
+    </header>
 
+    <main>
         @yield('content')
     </main>
 </body>

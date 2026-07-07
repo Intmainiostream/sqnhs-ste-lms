@@ -13,10 +13,16 @@
         z-index: 9999;
         background: #071a10;
         overflow: hidden;
-        transition: opacity 0.7s ease, visibility 0.7s ease;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
     }
 
     .loading-screen.fade-out {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .loading-screen.skip {
+        transition: none;
         opacity: 0;
         visibility: hidden;
     }
@@ -56,14 +62,24 @@
 
 <script>
     (function () {
-        console.log('Loading screen script started');
+        const loader = document.getElementById('loadingScreen');
 
-        const field = document.getElementById('moleculeField');
+        // Detect actual browser refresh/reload vs normal link navigation
+        const navEntries = performance.getEntriesByType('navigation');
+        const navType = navEntries.length ? navEntries[0].type : 'navigate';
 
-        if (!field) {
-            console.error('moleculeField not found in DOM');
+        const isReload = navType === 'reload';
+        const isFirstVisit = !sessionStorage.getItem('sqnhs_loaded_once');
+
+        if (!isReload && !isFirstVisit) {
+            // Normal link click navigation — skip animation entirely
+            loader.classList.add('skip');
             return;
         }
+
+        sessionStorage.setItem('sqnhs_loaded_once', '1');
+
+        const field = document.getElementById('moleculeField');
 
         function atomSVG(color) {
             return `<svg viewBox="0 0 100 100">
@@ -89,13 +105,11 @@
         }
 
         const colors = ['#4ade80', '#86efac', '#22c55e', '#bbf7d0'];
-        const count = 40;
+        const count = 30;
 
         function rand(min, max) {
             return Math.random() * (max - min) + min;
         }
-
-        console.log('Creating', count, 'shapes');
 
         for (let i = 0; i < count; i++) {
             const el = document.createElement('div');
@@ -116,8 +130,8 @@
 
             const dx = rand(-160, 160);
             const dy = rand(-160, 160);
-            const duration = rand(1600, 2400);
-            const delay = rand(0, 700);
+            const duration = rand(700, 1000);
+            const delay = rand(0, 200);
 
             el.animate([
                 { transform: 'translate(0px, 0px) scale(0.2) rotate(0deg)', opacity: 0 },
@@ -137,20 +151,14 @@
                 { filter: 'drop-shadow(0 0 16px rgba(74,222,128,1)) drop-shadow(0 0 34px rgba(34,197,94,0.8))' },
                 { filter: 'drop-shadow(0 0 4px rgba(74,222,128,0.6)) drop-shadow(0 0 8px rgba(34,197,94,0.35))' },
             ], {
-                duration: rand(900, 1500),
+                duration: rand(500, 800),
                 delay: delay,
                 iterations: Infinity,
             });
         }
 
-        console.log('Shapes created and animated:', field.children.length);
-
         setTimeout(function () {
-            const loader = document.getElementById('loadingScreen');
-            if (loader) {
-                loader.classList.add('fade-out');
-                console.log('Loader fading out');
-            }
-        }, 2200);
+            loader.classList.add('fade-out');
+        }, 900);
     })();
 </script>
