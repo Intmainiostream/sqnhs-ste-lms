@@ -6,7 +6,7 @@
     <title>@yield('title', 'SQNHS STE LMS')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-green-50 min-h-screen flex items-center justify-center py-10 relative overflow-hidden">
+<body class="bg-green-50 min-h-screen flex items-center justify-center py-10 relative overflow-x-hidden overflow-y-auto">
     @include('partials.loading-screen')
     @include('partials.atoms-bg')
 

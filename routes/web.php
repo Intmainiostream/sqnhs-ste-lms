@@ -33,6 +33,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/records', [AdminController::class, 'records'])->name('records');
         Route::post('/students/{student}/approve', [AdminController::class, 'approve'])->name('students.approve');
         Route::post('/students/{student}/reject', [AdminController::class, 'reject'])->name('students.reject');
+        Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
+        Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('users.destroy');
     });
 
     Route::get('/teacher/dashboard', function () {

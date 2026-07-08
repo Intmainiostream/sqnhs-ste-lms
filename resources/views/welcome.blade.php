@@ -6,7 +6,7 @@
     <title>SQNHS STE LMS</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-white text-gray-800 relative overflow-hidden">
+<body class="bg-white text-gray-800 relative">
     @include('partials.loading-screen')
     @include('partials.atoms-bg')
 
@@ -21,6 +21,14 @@
                class="text-sm font-medium bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg transition">
                 Register
             </a>
+            @auth
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="text-sm font-medium text-gray-500 hover:text-red-600 hover:underline">
+                        Log out
+                    </button>
+                </form>
+            @endauth
         </div>
     </nav>
 
@@ -35,14 +43,27 @@
             Enrollment and learning, in one place — for STE students, parents, teachers, and admin.
         </p>
         <div class="flex justify-center gap-4">
-            <a href="{{ route('register') }}"
-               class="bg-green-700 hover:bg-green-800 text-white font-semibold px-6 py-3 rounded-lg transition">
-                Enroll Now
-            </a>
-            <a href="{{ route('login') }}"
-               class="border border-green-700 text-green-800 font-semibold px-6 py-3 rounded-lg hover:bg-green-50 transition">
-                Log In
-            </a>
+            @guest
+                <a href="{{ route('register') }}"
+                   class="bg-green-700 hover:bg-green-800 text-white font-semibold px-6 py-3 rounded-lg transition">
+                    Enroll Now
+                </a>
+                <a href="{{ route('login') }}"
+                   class="border border-green-700 text-green-800 font-semibold px-6 py-3 rounded-lg hover:bg-green-50 transition">
+                    Log In
+                </a>
+            @else
+                <a href="{{ route(match(auth()->user()->role) {
+                        'admin' => 'admin.dashboard',
+                        'teacher' => 'teacher.dashboard',
+                        'parent' => 'parent.dashboard',
+                        'student' => 'student.dashboard',
+                        default => 'login',
+                    }) }}"
+                   class="bg-green-700 hover:bg-green-800 text-white font-semibold px-6 py-3 rounded-lg transition">
+                    Go to Dashboard
+                </a>
+            @endguest
         </div>
     </section>
 
