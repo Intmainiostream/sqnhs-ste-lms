@@ -28,30 +28,16 @@ class AuthController extends Controller
             'grade_level' => ['required', 'in:7,8,9,10'],
         ]);
 
-        $user = User::create([
-            'username' => $validated['username'],
-            'email'    => $validated['email'],
-            'password' => Hash::make($validated['password']),
-            'role'     => 'parent',
-            'status'   => 'pending',
+        session([
+            'pending_registration' => [
+                'username'    => $validated['username'],
+                'email'       => $validated['email'],
+                'password'    => Hash::make($validated['password']),
+                'grade_level' => $validated['grade_level'],
+            ],
         ]);
 
-        $activeSchoolYear = \App\Models\SchoolYear::where('is_active', true)->first();
-
-        $student = Student::create([
-            'user_id'           => $user->id,
-            'school_year_id'    => $activeSchoolYear?->id,
-            'grade_level'       => $validated['grade_level'],
-            'enrollment_status' => 'pending',
-        ]);
-
-        Auth::login($user);
-
-        if ($validated['grade_level'] == 7) {
-            return redirect()->route('enroll.create');
-        }
-
-        return redirect()->route('enroll.pending');
+        return redirect()->route('enroll.create');
     }
 
     public function showLogin()
@@ -102,9 +88,15 @@ class AuthController extends Controller
             ]);
         }
 
-        if ($user->status !== 'active') {
+        if ($user->status === 'pending') {
             throw ValidationException::withMessages([
-                'username' => 'Your account is not yet active. Please wait for admin approval.',
+                'username' => 'Your account has not been verified yet. Please wait for admin approval.',
+            ]);
+        }
+
+        if ($user->status === 'inactive') {
+            throw ValidationException::withMessages([
+                'username' => 'This account has been disabled. Please contact the school admin.',
             ]);
         }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SchoolYear;
 use App\Models\Student;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -11,23 +12,25 @@ class EnrollmentController extends Controller
 {
     public function create()
     {
-        $user = Auth::user();
-        $student = $user->student;
+        $pending = session('pending_registration');
 
-        if (!$student || $student->grade_level != 7) {
-            return redirect()->route('enroll.pending');
+        if (!$pending) {
+            return redirect()->route('register')->withErrors([
+                'username' => 'Please register first.',
+            ]);
         }
 
-        return view('enrollment.create', compact('student'));
+        return view('enrollment.create', ['gradeLevel' => $pending['grade_level']]);
     }
 
     public function store(Request $request)
     {
-        $user = Auth::user();
-        $student = $user->student;
+        $pending = session('pending_registration');
 
-        if (!$student || $student->grade_level != 7) {
-            return redirect()->route('enroll.pending');
+        if (!$pending) {
+            return redirect()->route('register')->withErrors([
+                'username' => 'Please register first.',
+            ]);
         }
 
         $validated = $request->validate([
@@ -104,7 +107,36 @@ class EnrollmentController extends Controller
             $validated['permanent_zip'] = $validated['current_zip'];
         }
 
-        $student->update($validated);
+        // Re-check in case someone else grabbed the username/email while this form was open
+        if (User::where('username', $pending['username'])->exists()
+            || User::where('email', $pending['email'])->exists()) {
+            session()->forget('pending_registration');
+
+            return redirect()->route('register')->withErrors([
+                'username' => 'That username or email was just taken. Please register again.',
+            ]);
+        }
+
+        $activeSchoolYear = SchoolYear::where('is_active', true)->first();
+
+        $user = User::create([
+            'username' => $pending['username'],
+            'email'    => $pending['email'],
+            'password' => $pending['password'],
+            'role'     => 'parent',
+            'status'   => 'pending',
+        ]);
+
+        $validated['user_id']           = $user->id;
+        $validated['school_year_id']    = $activeSchoolYear?->id;
+        $validated['grade_level']       = $pending['grade_level'];
+        $validated['enrollment_status'] = 'pending';
+
+        Student::create($validated);
+
+        session()->forget('pending_registration');
+
+        Auth::login($user);
 
         return redirect()->route('enroll.pending');
     }

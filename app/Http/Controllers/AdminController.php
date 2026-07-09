@@ -21,7 +21,7 @@ class AdminController extends Controller
 
     public function users()
     {
-     $users = User::with('student')->orderBy('role')->orderBy('username')->get()->map(fn ($u) => [
+     $users = User::with('student')->where('status', '!=', 'pending')->orderBy('role')->orderBy('username')->get()->map(fn ($u) => [
     'id'                => $u->id,
     'username'          => $u->username,
     'email'             => $u->email,
@@ -79,10 +79,12 @@ class AdminController extends Controller
 
     public function reject(Student $student)
     {
-        $student->update(['enrollment_status' => 'rejected']);
-        $student->user->update(['status' => 'inactive']);
+        $user = $student->user;
 
-        return back()->with('success', 'Student rejected.');
+        $student->forceDelete();
+        $user->forceDelete();
+
+        return back()->with('success', 'Registration rejected and removed.');
     }
 
     public function updateUser(Request $request, \App\Models\User $user)

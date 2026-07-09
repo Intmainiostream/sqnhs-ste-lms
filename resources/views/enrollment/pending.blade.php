@@ -10,9 +10,9 @@
             </svg>
         </div>
 
-        <p class="font-semibold text-green-800 text-lg mb-1">Enrollment Submitted</p>
+        <p class="font-semibold text-green-800 text-lg mb-1">Submitted for Review</p>
         <p class="text-sm text-gray-500">
-            Your enrollment is now pending admin approval. You'll be able to log in once your account is activated.
+            Your information is now pending admin approval. You'll be able to log in once your account is activated.
         </p>
 
         <form method="POST" action="{{ route('logout') }}" class="mt-6">

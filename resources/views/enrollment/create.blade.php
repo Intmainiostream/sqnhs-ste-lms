@@ -1,16 +1,16 @@
 @extends('layouts.form')
 
-@section('title', 'Enrollment Form')
+@section('title', 'Student Information Form')
 
 @section('content')
-    <h1 class="text-center text-green-900 font-bold text-2xl mb-1">Enrollment Form</h1>
-    <p class="text-center text-gray-500 text-sm mb-6">Basic Education Enrollment — SQNHS STE Program</p>
+    <h1 class="text-center text-green-900 font-bold text-2xl mb-1">Student Information Form</h1>
+    <p class="text-center text-gray-500 text-sm mb-6">Please complete your child's profile — SQNHS STE Program</p>
 
     <form method="POST" action="{{ route('enroll.store') }}" class="space-y-8">
         @csrf
 
         <div class="text-sm text-gray-500">
-            Grade Level: <span class="font-semibold text-green-800">Grade {{ $student->grade_level }}</span>
+            Grade Level: <span class="font-semibold text-green-800">Grade {{ $gradeLevel }}</span>
         </div>
 
         {{-- LEARNER INFO --}}
@@ -203,7 +203,7 @@
 
         <button type="submit"
                 class="w-full bg-green-700 hover:bg-green-800 text-white font-semibold py-2.5 rounded-lg transition">
-            Submit Enrollment
+            Submit Information
         </button>
     </form>
 

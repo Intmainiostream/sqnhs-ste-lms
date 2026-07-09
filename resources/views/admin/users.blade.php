@@ -9,7 +9,7 @@
 </script>
 
 <div x-data="{
-    users: window.usersData,
+    users: window.usersData.filter(u => u.status !== 'pending'),
     searchQuery: '',
     selectedRoles: [],
     currentPage: 1,

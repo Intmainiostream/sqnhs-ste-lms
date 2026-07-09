@@ -6,6 +6,12 @@
     <form method="POST" action="{{ route('login') }}" class="space-y-4">
         @csrf
 
+        @if ($errors->any())
+            <div class="p-3 rounded-lg bg-red-50 border border-red-200 text-red-700 text-sm">
+                {{ $errors->first() }}
+            </div>
+        @endif
+
         <div>
             <label for="username" class="block text-sm font-medium text-green-800 mb-1">Username</label>
             <input type="text" name="username" id="username" value="{{ old('username') }}"
