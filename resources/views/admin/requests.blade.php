@@ -30,8 +30,10 @@
     currentPage: 1,
     perPage: 10,
     showFilters: false,
+    confirmingReject: null,
+    confirmingApprove: null,
 
-    get filteredStudents() {
+    get searchedStudents() {
         let result = [...this.students];
         if (this.searchQuery.trim()) {
             const q = this.searchQuery.toLowerCase().trim();
@@ -41,6 +43,10 @@
                 (s.last_name && s.last_name.toLowerCase().includes(q))
             );
         }
+        return result;
+    },
+    get filteredStudents() {
+        let result = this.searchedStudents;
         if (this.selectedGrades.length > 0) {
             result = result.filter(s => this.selectedGrades.includes(s.grade_level));
         }
@@ -78,10 +84,10 @@
 
             <div class="relative grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
                 <template x-for="grade in [7, 8, 9, 10]" :key="grade">
-                    <button @click="selectedGrades = selectedGrades.includes(grade) ? selectedGrades.filter(g => g !== grade) : [grade]"
+                    <button @click="selectedGrades = selectedGrades.includes(grade) ? selectedGrades.filter(g => g !== grade) : [...selectedGrades, grade]"
                         class="bg-white/10 backdrop-blur rounded-xl p-4 text-left hover:bg-white/20 transition-all duration-200 border"
                         :class="selectedGrades.includes(grade) ? 'border-white/60' : 'border-white/0'">
-                        <p class="text-2xl font-bold text-white" x-text="students.filter(s => s.grade_level === grade).length"></p>
+                        <p class="text-2xl font-bold text-white" x-text="searchedStudents.filter(s => s.grade_level === grade).length"></p>
                         <p class="text-green-100 text-xs uppercase tracking-wide mt-1">Grade <span x-text="grade"></span></p>
                     </button>
                 </template>
@@ -176,20 +182,14 @@
                             <td class="px-4 py-3 text-gray-500" x-text="student.created_at"></td>
                             <td class="px-4 sm:px-8 py-3 text-right">
                                 <div class="flex justify-end gap-2">
-                                    <form method="POST" :action="student.approve_url">
-                                        @csrf
-                                        <button type="submit"
-                                                class="px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-medium transition">
-                                            Approve
-                                        </button>
-                                    </form>
-                                    <form method="POST" :action="student.reject_url">
-                                        @csrf
-                                        <button type="submit"
-                                                class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 text-xs font-medium transition">
-                                            Reject
-                                        </button>
-                                    </form>
+                                    <button type="button" @click="confirmingApprove = student"
+                                            class="px-3 py-1.5 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs font-medium transition">
+                                        Approve
+                                    </button>
+                                    <button type="button" @click="confirmingReject = student"
+                                            class="px-3 py-1.5 rounded-lg border border-red-200 text-red-600 hover:bg-red-50 text-xs font-medium transition">
+                                        Reject
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -230,6 +230,64 @@
             </div>
         </div>
 
+    </div>
+
+    <div x-show="confirmingReject" x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center px-4"
+        x-transition:enter="transition ease-out duration-150"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100">
+        <div class="absolute inset-0 bg-black/40" @click="confirmingReject = null"></div>
+        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6"
+            x-transition:enter="transition ease-out duration-150"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100">
+            <h3 class="text-lg font-semibold text-gray-900">Reject this student?</h3>
+            <p class="text-sm text-gray-500 mt-1.5" x-text="confirmingReject ? (displayName(confirmingReject) ?? confirmingReject.username) + '\'s enrollment will be rejected.' : ''"></p>
+            <div class="flex justify-end gap-2 mt-6">
+                <button @click="confirmingReject = null"
+                    class="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 text-sm font-medium transition">
+                    Cancel
+                </button>
+                <form method="POST" :action="confirmingReject ? confirmingReject.reject_url : ''"
+                    @submit="$el.querySelector('button').disabled = true">
+                    @csrf
+                    <button type="submit"
+                        class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition disabled:opacity-50">
+                        Yes, Reject
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="confirmingApprove" x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center px-4"
+        x-transition:enter="transition ease-out duration-150"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100">
+        <div class="absolute inset-0 bg-black/40" @click="confirmingApprove = null"></div>
+        <div class="relative bg-white rounded-2xl shadow-xl w-full max-w-sm p-6"
+            x-transition:enter="transition ease-out duration-150"
+            x-transition:enter-start="opacity-0 scale-95"
+            x-transition:enter-end="opacity-100 scale-100">
+            <h3 class="text-lg font-semibold text-gray-900">Approve this student?</h3>
+            <p class="text-sm text-gray-500 mt-1.5" x-text="confirmingApprove ? (displayName(confirmingApprove) ?? confirmingApprove.username) + '\'s enrollment will be approved.' : ''"></p>
+            <div class="flex justify-end gap-2 mt-6">
+                <button @click="confirmingApprove = null"
+                    class="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 text-sm font-medium transition">
+                    Cancel
+                </button>
+                <form method="POST" :action="confirmingApprove ? confirmingApprove.approve_url : ''"
+                    @submit="$el.querySelector('button').disabled = true">
+                    @csrf
+                    <button type="submit"
+                        class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition disabled:opacity-50">
+                        Yes, Approve
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 

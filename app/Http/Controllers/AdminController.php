@@ -55,18 +55,15 @@ class AdminController extends Controller
         return view('admin.requests', compact('pendingStudents'));
     }
 
-    public function records(Request $request)
+    public function records()
     {
-        $gradeFilter = $request->query('grade');
-
         $students = Student::with('user')
             ->where('enrollment_status', 'approved')
-            ->when($gradeFilter, fn ($q) => $q->where('grade_level', $gradeFilter))
             ->orderBy('grade_level')
             ->orderBy('last_name')
             ->get();
 
-        return view('admin.records', compact('students', 'gradeFilter'));
+        return view('admin.records', compact('students'));
     }
 
     public function approve(Student $student)

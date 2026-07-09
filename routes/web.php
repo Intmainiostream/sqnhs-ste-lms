@@ -36,6 +36,18 @@ Route::middleware('auth')->group(function () {
         Route::post('/students/{student}/reject', [AdminController::class, 'reject'])->name('students.reject');
         Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
         Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('users.destroy');
+
+        Route::get('/subjects', [App\Http\Controllers\SubjectController::class, 'index'])->name('subjects');
+        Route::post('/subjects', [App\Http\Controllers\SubjectController::class, 'store'])->name('subjects.store');
+        Route::delete('/subjects/{subject}', [App\Http\Controllers\SubjectController::class, 'destroy'])->name('subjects.destroy');
+
+        Route::get('/students/{student}/grades', [App\Http\Controllers\GradeController::class, 'edit'])->name('students.grades.edit');
+        Route::put('/students/{student}/grades', [App\Http\Controllers\GradeController::class, 'update'])->name('students.grades.update');
+    });
+
+    Route::prefix('teacher')->name('teacher.')->middleware('role:teacher')->group(function () {
+        Route::get('/students/{student}/grades', [App\Http\Controllers\GradeController::class, 'edit'])->name('students.grades.edit');
+        Route::put('/students/{student}/grades', [App\Http\Controllers\GradeController::class, 'update'])->name('students.grades.update');
     });
 
     Route::get('/teacher/dashboard', function () {
