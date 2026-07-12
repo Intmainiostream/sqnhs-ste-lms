@@ -25,9 +25,19 @@
         </div>
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-full bg-green-700 text-white flex items-center justify-center text-xs font-bold">
-                {{ strtoupper(substr(auth()->user()->username ?? 'A', 0, 2)) }}
+                @if(auth()->user()->role !== 'admin' && auth()->user()->fname && auth()->user()->lname)
+                    {{ strtoupper(substr(auth()->user()->fname, 0, 1) . substr(auth()->user()->lname, 0, 1)) }}
+                @else
+                    {{ strtoupper(substr(auth()->user()->username ?? 'A', 0, 2)) }}
+                @endif
             </div>
-            <span class="text-sm text-gray-600 hidden sm:inline">{{ auth()->user()->username ?? 'Admin' }}</span>
+            <span class="text-sm text-gray-600 hidden sm:inline">
+                @if(in_array(auth()->user()->role, ['admin', 'parent', 'student']))
+                    {{ strtoupper(auth()->user()->username ?? 'Admin') }}
+                @else
+                    {{ auth()->user()->username ?? 'Admin' }}
+                @endif
+            </span>
         </div>
     </header>
 

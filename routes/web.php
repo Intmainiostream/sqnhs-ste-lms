@@ -45,20 +45,12 @@ Route::middleware('auth')->group(function () {
         Route::put('/students/{student}/grades', [App\Http\Controllers\GradeController::class, 'update'])->name('students.grades.update');
     });
 
-    Route::prefix('teacher')->name('teacher.')->middleware('role:teacher')->group(function () {
-        Route::get('/students/{student}/grades', [App\Http\Controllers\GradeController::class, 'edit'])->name('students.grades.edit');
-        Route::put('/students/{student}/grades', [App\Http\Controllers\GradeController::class, 'update'])->name('students.grades.update');
+    
+
+    
+
+    Route::prefix('student')->name('student.')->middleware('role:student')->group(function () {
+        Route::get('/dashboard', [App\Http\Controllers\StudentController::class, 'dashboard'])->name('dashboard');
+        Route::get('/grades', [App\Http\Controllers\StudentController::class, 'grades'])->name('grades');
     });
-
-    Route::get('/teacher/dashboard', function () {
-        return view('teacher.dashboard');
-    })->name('teacher.dashboard');
-
-    Route::get('/parent/dashboard', function () {
-        return view('parent.dashboard');
-    })->name('parent.dashboard');
-
-    Route::get('/student/dashboard', function () {
-        return view('student.dashboard');
-    })->name('student.dashboard');
 });

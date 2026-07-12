@@ -13,6 +13,7 @@
             $rows[] = [
                 'subject_id'   => $subject->id,
                 'parent_id'    => null,
+                'grade_level'  => $subject->grade_level,
                 'has_children' => false,
                 'name'         => $subject->name,
                 'term1'        => $grade->term1 ?? null,
@@ -27,6 +28,7 @@
             $rows[] = [
                 'subject_id'   => $subject->id,
                 'parent_id'    => null,
+                'grade_level'  => $subject->grade_level,
                 'has_children' => true,
                 'name'         => $subject->name,
                 'term1'        => null,
@@ -42,6 +44,7 @@
                 $rows[] = [
                     'subject_id'   => $child->id,
                     'parent_id'    => $subject->id,
+                    'grade_level'  => $subject->grade_level,
                     'has_children' => false,
                     'name'         => $child->name,
                     'term1'        => $grade->term1 ?? null,
@@ -62,6 +65,12 @@
 
 <div x-data="{
     rows: window.gradesData,
+    activeGrade: {{ (int) $student->grade_level }},
+    studentGradeLevel: {{ (int) $student->grade_level }},
+
+    get currentRows() {
+        return this.rows.filter(r => r.grade_level === this.activeGrade);
+    },
 
     average(row) {
         const terms = [row.term1, row.term2, row.term3].filter(t => t !== null && t !== '' && !isNaN(t));
@@ -137,35 +146,54 @@
             </div>
         @endif
 
-        <form method="POST" action="{{ route('admin.students.grades.update', $student) }}" class="mt-6">
+        <div class="flex gap-2 mt-6 items-end">
+            <template x-for="grade in [7, 8, 9, 10]" :key="grade">
+                <div class="flex flex-col items-center gap-1">
+                    <span class="text-[10px] whitespace-nowrap px-2 py-0.5 rounded-full font-semibold"
+                        :style="grade === studentGradeLevel
+                            ? 'background-color:#facc15; color:#713f12;'
+                            : 'visibility:hidden; background-color:transparent;'">
+                        current
+                    </span>
+                    <button type="button" @click="activeGrade = grade"
+                        :class="activeGrade === grade ? 'bg-green-600 text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'"
+                        class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200">
+                        Grade <span x-text="grade"></span>
+                    </button>
+                </div>
+            </template>
+        </div>
+
+        <form method="POST" action="{{ route('admin.students.grades.update', $student) }}" class="mt-4">
             @csrf
             @method('PUT')
 
-            @if (empty($rows))
+            <template x-if="currentRows.length === 0">
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm px-6 py-16 text-center">
-                    <p class="text-gray-400 text-sm">No subjects set up for Grade {{ $student->grade_level }} yet.</p>
+                    <p class="text-gray-400 text-sm">No subjects set up for Grade <span x-text="activeGrade"></span> yet.</p>
                     <a href="{{ route('admin.subjects') }}" class="inline-block mt-3 text-green-700 text-sm font-medium hover:underline">
                         Manage Subjects →
                     </a>
                 </div>
-            @else
-                <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="bg-gray-50 text-gray-500 text-left text-xs uppercase tracking-wide border-b border-gray-100">
-                                <th class="px-6 py-3 font-medium">Learning Area</th>
-                                <th class="px-3 py-3 font-medium text-center w-20">Term 1</th>
-                                <th class="px-3 py-3 font-medium text-center w-20">Term 2</th>
-                                <th class="px-3 py-3 font-medium text-center w-20">Term 3</th>
-                                <th class="px-3 py-3 font-medium text-center w-24">Final</th>
-                                <th class="px-3 py-3 font-medium text-center w-20">Override</th>
-                                <th class="px-6 py-3 font-medium">Remarks</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            <template x-for="row in rows" :key="row.subject_id">
-                                <tr :class="row.has_children ? 'bg-gray-50/60' : 'hover:bg-green-50/30 transition-colors'">
-                                    <td :class="row.parent_id ? 'pl-12 pr-6 py-2' : 'px-6 py-3'">
+            </template>
+
+            <div x-show="currentRows.length > 0" class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-500 text-left text-xs uppercase tracking-wide border-b border-gray-100">
+                            <th class="px-6 py-3 font-medium">Learning Area</th>
+                            <th class="px-3 py-3 font-medium text-center w-20">Term 1</th>
+                            <th class="px-3 py-3 font-medium text-center w-20">Term 2</th>
+                            <th class="px-3 py-3 font-medium text-center w-20">Term 3</th>
+                            <th class="px-3 py-3 font-medium text-center w-24">Final</th>
+                            <th class="px-3 py-3 font-medium text-center w-20">Override</th>
+                            <th class="px-6 py-3 font-medium">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <template x-for="row in rows" :key="row.subject_id">
+                            <tr x-show="row.grade_level === activeGrade" :class="row.has_children ? 'bg-gray-50/60' : 'hover:bg-green-50/30 transition-colors'">
+                                <td :class="row.parent_id ? 'pl-12 pr-6 py-2' : 'px-6 py-3'">
                                         <span :class="row.has_children ? 'font-medium text-gray-900' : (row.parent_id ? 'text-sm text-gray-600' : 'font-medium text-gray-900')"
                                             x-text="row.name"></span>
                                         <input type="hidden" :name="'grades[' + row.subject_id + '][subject_id]'" :value="row.subject_id">
@@ -177,7 +205,7 @@
                                                 :name="'grades[' + row.subject_id + '][term1]'"
                                                 class="w-full text-center rounded-lg border border-gray-200 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                                         </template>
-                                        <span x-show="row.has_children" class="text-gray-300">—</span>
+                                        <span x-show="row.has_children" class="flex items-center justify-center h-[34px] text-gray-300">—</span>
                                     </td>
                                     <td class="px-3 py-2 text-center">
                                         <template x-if="!row.has_children">
@@ -186,7 +214,7 @@
                                                 :name="'grades[' + row.subject_id + '][term2]'"
                                                 class="w-full text-center rounded-lg border border-gray-200 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                                         </template>
-                                        <span x-show="row.has_children" class="text-gray-300">—</span>
+                                        <span x-show="row.has_children" class="flex items-center justify-center h-[34px] text-gray-300">—</span>
                                     </td>
                                     <td class="px-3 py-2 text-center">
                                         <template x-if="!row.has_children">
@@ -195,7 +223,7 @@
                                                 :name="'grades[' + row.subject_id + '][term3]'"
                                                 class="w-full text-center rounded-lg border border-gray-200 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                                         </template>
-                                        <span x-show="row.has_children" class="text-gray-300">—</span>
+                                        <span x-show="row.has_children" class="flex items-center justify-center h-[34px] text-gray-300">—</span>
                                     </td>
                                     <td class="px-3 py-2">
                                         <input type="number" step="0.01" min="60" max="100"
@@ -218,16 +246,15 @@
                                 </tr>
                             </template>
                         </tbody>
-                    </table>
+                </table>
 
-                    <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end">
-                        <button type="submit"
-                            class="px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition">
-                            Save Grades
-                        </button>
-                    </div>
+                <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end">
+                    <button type="submit"
+                        class="px-5 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition">
+                        Save Grades
+                    </button>
                 </div>
-            @endif
+            </div>
         </form>
 
     </div>
@@ -236,5 +263,6 @@
 <style>
     .anim-fade { animation: fadeIn 0.4s ease-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    [x-cloak] { display: none !important; }
 </style>
 @endsection

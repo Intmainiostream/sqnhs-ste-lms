@@ -6,24 +6,23 @@
     <form method="POST" action="{{ route('register') }}" class="space-y-4">
         @csrf
 
-        <div>
+        <div x-data="{ accountType: '{{ old('account_type', 'parent') }}' }">
             <label class="block text-sm font-medium text-green-800 mb-2">Registering as</label>
             <div class="grid grid-cols-2 gap-3">
-                <label class="flex items-center justify-center gap-2 border rounded-lg py-2 cursor-pointer
-                              {{ old('account_type', 'parent') == 'parent' ? 'border-green-600 bg-green-50' : 'border-gray-300' }}">
-                    <input type="radio" name="account_type" value="parent"
-                           {{ old('account_type', 'parent') == 'parent' ? 'checked' : '' }}
+                <label class="flex items-center justify-center gap-2 border rounded-lg py-2 cursor-pointer transition"
+                       :class="accountType === 'parent' ? 'border-green-600 bg-green-50' : 'border-gray-300'">
+                    <input type="radio" name="account_type" value="parent" x-model="accountType"
                            class="text-green-700 focus:ring-green-500">
                     <span class="text-sm text-green-900">Parent</span>
                 </label>
-                <label class="flex items-center justify-center gap-2 border rounded-lg py-2 cursor-pointer
-                              {{ old('account_type') == 'student' ? 'border-green-600 bg-green-50' : 'border-gray-300' }}">
-                    <input type="radio" name="account_type" value="student"
-                           {{ old('account_type') == 'student' ? 'checked' : '' }}
+                <label class="flex items-center justify-center gap-2 border rounded-lg py-2 cursor-pointer transition"
+                       :class="accountType === 'student' ? 'border-green-600 bg-green-50' : 'border-gray-300'">
+                    <input type="radio" name="account_type" value="student" x-model="accountType"
                            class="text-green-700 focus:ring-green-500">
                     <span class="text-sm text-green-900">Student</span>
                 </label>
             </div>
+            <p class="text-xs text-gray-400 mt-1">This is just a label — the account created will always be your child's student account.</p>
         </div>
 
         <div>
@@ -102,7 +101,7 @@
         </div>
 
         <div class="bg-green-50 border border-green-200 rounded-lg p-3 text-xs text-green-800">
-            Already have an account for your child? Don't register again — just log in using the same username and password your child (or you) already created.
+            Already registered your child? Don't register again — just log in using the username and password you created for them.
         </div>
 
         <button type="submit"

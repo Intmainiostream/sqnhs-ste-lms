@@ -117,6 +117,10 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        if ($request->query('redirect') === 'register') {
+            return redirect()->route('register');
+        }
+
         return redirect()->route('login');
     }
 
@@ -124,8 +128,6 @@ class AuthController extends Controller
     {
         return match ($role) {
             'admin'   => redirect()->route('admin.dashboard'),
-            'teacher' => redirect()->route('teacher.dashboard'),
-            'parent'  => redirect()->route('parent.dashboard'),
             'student' => redirect()->route('student.dashboard'),
             default   => redirect()->route('login'),
         };

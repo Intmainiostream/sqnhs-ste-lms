@@ -15,11 +15,20 @@
             Your information is now pending admin approval. You'll be able to log in once your account is activated.
         </p>
 
-        <form method="POST" action="{{ route('logout') }}" class="mt-6">
-            @csrf
-            <button type="submit" class="text-sm text-green-700 font-medium hover:underline">
-                Log out
-            </button>
-        </form>
+        <div class="mt-6 flex flex-col items-center gap-3">
+            <form method="POST" action="{{ route('logout') }}?redirect=register">
+                @csrf
+                <button type="submit" class="text-sm bg-green-700 hover:bg-green-800 text-white font-medium px-4 py-2 rounded-lg transition">
+                    Register Another Child
+                </button>
+            </form>
+
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="text-sm text-gray-500 hover:underline">
+                    Log out
+                </button>
+            </form>
+        </div>
     </div>
 @endsection

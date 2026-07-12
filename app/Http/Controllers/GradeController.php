@@ -15,7 +15,7 @@ class GradeController extends Controller
         $schoolYear = SchoolYear::where('is_active', true)->firstOrFail();
 
         $subjects = Subject::whereNull('parent_subject_id')
-            ->where('grade_level', $student->grade_level)
+            ->whereIn('grade_level', [7, 8, 9, 10])
             ->with(['children' => fn ($q) => $q->orderBy('sort_order')])
             ->orderBy('sort_order')
             ->get();

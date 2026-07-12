@@ -123,7 +123,7 @@ class EnrollmentController extends Controller
             'username' => $pending['username'],
             'email'    => $pending['email'],
             'password' => $pending['password'],
-            'role'     => 'parent',
+            'role'     => 'student',
             'status'   => 'pending',
         ]);
 
