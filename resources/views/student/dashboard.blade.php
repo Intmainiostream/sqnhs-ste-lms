@@ -2,6 +2,10 @@
 
 @section('title', 'Student Dashboard')
 
+@push('scripts')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+@endpush
+
 @section('content')
 <div class="max-w-4xl mx-auto px-6 sm:px-10 lg:px-8 py-4 sm:py-6 lg:py-8">
 
@@ -66,39 +70,24 @@
     </div>
     @endif
 
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mt-4">
-        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Subject Performance</h2>
-        @forelse($performance as $subject)
-            <div class="mb-4 last:mb-0">
-                <div class="flex items-center justify-between mb-1.5">
-                    <span class="text-sm font-medium text-gray-700">{{ $subject['name'] }}</span>
-                    <span class="text-sm font-semibold {{ $subject['final_grade'] !== null && $subject['final_grade'] >= 75 ? 'text-green-700' : ($subject['final_grade'] !== null ? 'text-red-600' : 'text-gray-400') }}">
-                        {{ $subject['final_grade'] ?? '—' }}
-                    </span>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Subject Performance</h2>
+            @if(count($performance) > 0)
+                <div class="max-w-[220px] mx-auto">
+                    <canvas id="subjectPieChart"></canvas>
                 </div>
-                <div class="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div class="h-full rounded-full {{ $subject['final_grade'] !== null && $subject['final_grade'] >= 75 ? 'bg-green-600' : 'bg-red-400' }}"
-                         style="width: {{ $subject['final_grade'] !== null ? min(100, $subject['final_grade']) : 0 }}%;"></div>
-                </div>
-            </div>
-        @empty
-            <p class="text-sm text-gray-400">No subjects to show yet.</p>
-        @endforelse
-    </div>
+                <div id="pieLegend" class="grid grid-cols-2 gap-x-4 gap-y-2 mt-5"></div>
+            @else
+                <p class="text-sm text-gray-400">No subjects to show yet.</p>
+            @endif
+        </div>
 
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mt-4">
-        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Term Progress</h2>
-        <div class="grid grid-cols-3 gap-4">
-            @foreach(['term1' => 'Term 1', 'term2' => 'Term 2', 'term3' => 'Term 3'] as $key => $label)
-                <div class="text-center">
-                    <div class="h-24 flex items-end justify-center">
-                        <div class="w-10 rounded-t-lg {{ $termAverages[$key] !== null && $termAverages[$key] >= 75 ? 'bg-green-600' : 'bg-gray-200' }}"
-                             style="height: {{ $termAverages[$key] !== null ? max(8, ($termAverages[$key] / $maxTerm) * 96) : 8 }}px;"></div>
-                    </div>
-                    <p class="text-sm font-bold text-gray-800 mt-2">{{ $termAverages[$key] ?? '—' }}</p>
-                    <p class="text-xs text-gray-400">{{ $label }}</p>
-                </div>
-            @endforeach
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Term Progress</h2>
+            <div class="max-w-[320px] mx-auto">
+                <canvas id="termHistogram" height="220"></canvas>
+            </div>
         </div>
     </div>
 
@@ -113,4 +102,72 @@
     </div>
 
 </div>
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const performance = @json(collect($performance)->values());
+    const termAverages = @json($termAverages);
+
+    const pieEl = document.getElementById('subjectPieChart');
+    if (pieEl && performance.length > 0) {
+        const palette = ['#15803d', '#2563eb', '#d97706', '#dc2626', '#7c3aed', '#0891b2', '#db2777'];
+        const colors = performance.map((_, i) => palette[i % palette.length]);
+
+        new Chart(pieEl, {
+            type: 'pie',
+            data: {
+                labels: performance.map(p => p.name),
+                datasets: [{
+                    data: performance.map(p => p.final_grade ?? 0),
+                    backgroundColor: colors,
+                    borderColor: '#ffffff',
+                    borderWidth: 2,
+                }]
+            },
+            options: {
+                maintainAspectRatio: true,
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        const legendEl = document.getElementById('pieLegend');
+        if (legendEl) {
+            legendEl.innerHTML = performance.map((p, i) => `
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color:${colors[i]}"></span>
+                    <span class="text-gray-600">${p.name}</span>
+                    <span class="font-semibold text-gray-800 ml-auto">${p.final_grade ?? '—'}</span>
+                </div>
+            `).join('');
+        }
+    }
+
+    const histEl = document.getElementById('termHistogram');
+    if (histEl) {
+        new Chart(histEl, {
+            type: 'bar',
+            data: {
+                labels: ['Term 1', 'Term 2', 'Term 3'],
+                datasets: [{
+                    data: [termAverages.term1 ?? 0, termAverages.term2 ?? 0, termAverages.term3 ?? 0],
+                    backgroundColor: '#16a34a',
+                    borderRadius: 6,
+                    barPercentage: 0.6,
+                    categoryPercentage: 0.7,
+                }]
+            },
+            options: {
+                maintainAspectRatio: true,
+                scales: {
+                    y: { min: 60, max: 100, ticks: { color: '#9ca3af', font: { size: 10 } }, grid: { color: '#f3f4f6' } },
+                    x: { ticks: { color: '#374151', font: { size: 11, weight: '500' } }, grid: { display: false } },
+                },
+                plugins: { legend: { display: false } },
+            }
+        });
+    }
+});
+</script>
+@endpush
 @endsection

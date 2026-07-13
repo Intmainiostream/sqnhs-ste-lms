@@ -27,13 +27,12 @@ class StudentController extends Controller
             fn ($subject) => $subject->children->isNotEmpty() || $subject->is_gradable
         );
 
-        $grades = $schoolYear
-            ? StudentGrade::where('student_id', $student->id)
-                ->where('school_year_id', $schoolYear->id)
-                ->whereIn('subject_id', $gradableSubjects->pluck('id'))
-                ->get()
-                ->keyBy('subject_id')
-            : collect();
+        $grades = StudentGrade::where('student_id', $student->id)
+            ->whereIn('subject_id', $gradableSubjects->pluck('id'))
+            ->orderByDesc('school_year_id')
+            ->get()
+            ->unique('subject_id')
+            ->keyBy('subject_id');
 
         $gradedCount = $grades->whereNotNull('final_grade')->count();
         $generalAverage = $gradedCount > 0
@@ -55,12 +54,11 @@ class StudentController extends Controller
                 : ($subject->is_gradable ? collect([$subject->id]) : collect());
         });
 
-        $leafGrades = $schoolYear
-            ? StudentGrade::where('student_id', $student->id)
-                ->where('school_year_id', $schoolYear->id)
-                ->whereIn('subject_id', $leafSubjectIds)
-                ->get()
-            : collect();
+        $leafGrades = StudentGrade::where('student_id', $student->id)
+            ->whereIn('subject_id', $leafSubjectIds)
+            ->orderByDesc('school_year_id')
+            ->get()
+            ->unique('subject_id');
 
         $termAverages = [
             'term1' => $leafGrades->whereNotNull('term1')->avg('term1'),
