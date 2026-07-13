@@ -12,7 +12,10 @@
     @include('partials.loading-screen')
     @include('partials.success-modal')
 
-    @include('admin.partials.sidebar', ['pendingCount' => \App\Models\Student::where('enrollment_status', 'pending')->count()])
+    @include('admin.partials.sidebar', [
+        'pendingCount' => \App\Models\Student::where('enrollment_status', 'pending')->count(),
+        'accountRequestCount' => \App\Models\AccountChangeRequest::where('status', 'pending')->count(),
+    ])
 
     <header class="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between sticky top-0 z-30">
         <div class="flex items-center gap-3">

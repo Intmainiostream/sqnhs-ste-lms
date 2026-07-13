@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\AccountRequestController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -46,7 +48,21 @@ Route::middleware('auth')->group(function () {
     });
 
     
+   // Student
+Route::prefix('student')->name('student.')->middleware('role:student')->group(function () {
+    Route::get('/profile', [StudentController::class, 'profile'])->name('profile');
+    Route::post('/profile/info', [StudentController::class, 'requestInfoUpdate'])->name('profile.info');
+    Route::delete('/profile/requests/{accountChangeRequest}', [StudentController::class, 'cancelChangeRequest'])->name('profile.cancel');
+    Route::post('/profile/password', [StudentController::class, 'requestPasswordChange'])->name('profile.password');
+    
+});
 
+// Admin
+Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function () {
+    Route::get('/account-requests', [AccountRequestController::class, 'index'])->name('account-requests');
+    Route::put('/account-requests/{accountChangeRequest}/approve', [AccountRequestController::class, 'approve'])->name('account-requests.approve');
+    Route::put('/account-requests/{accountChangeRequest}/reject', [AccountRequestController::class, 'reject'])->name('account-requests.reject');
+});
     
 
     Route::prefix('student')->name('student.')->middleware('role:student')->group(function () {

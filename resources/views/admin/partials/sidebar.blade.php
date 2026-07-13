@@ -85,6 +85,17 @@
             </svg>
             Manage Subjects
         </a>
+        <a href="{{ route('admin.account-requests') }}"
+           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition
+                  {{ $currentRoute === 'admin.account-requests' ? 'bg-green-700 text-white' : 'text-gray-600 hover:bg-gray-50' }}">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Account Requests
+            @if(($accountRequestCount ?? 0) > 0)
+                <span class="ml-auto bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">{{ $accountRequestCount }}</span>
+            @endif
+        </a>
 
         <div class="pt-3 mt-3 border-t border-gray-100">
             <form method="POST" action="{{ route('logout') }}">
