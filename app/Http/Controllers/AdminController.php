@@ -92,6 +92,7 @@ class AdminController extends Controller
         'first_name'        => 'nullable|string|max:100',
         'last_name'         => 'nullable|string|max:100',
         'birthdate'         => 'nullable|date',
+        'grade_level'       => 'nullable|integer|min:7|max:10',
         'current_address'   => 'nullable|string|max:255',
         'permanent_address' => 'nullable|string|max:255',
         'father_name'       => 'nullable|string|max:150',
@@ -110,7 +111,7 @@ class AdminController extends Controller
     if ($user->student) {
         $user->student->update(collect($validated)
             ->only([
-                'first_name', 'last_name', 'birthdate',
+                'first_name', 'last_name', 'birthdate', 'grade_level',
                 'current_address', 'permanent_address',
                 'father_name', 'father_contact',
                 'mother_name', 'mother_contact',

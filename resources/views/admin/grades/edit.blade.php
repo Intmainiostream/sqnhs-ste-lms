@@ -68,6 +68,19 @@
     activeGrade: {{ (int) $student->grade_level }},
     studentGradeLevel: {{ (int) $student->grade_level }},
 
+    initFinals() {
+        this.rows.forEach(r => {
+            if (!r.has_children && !r.is_override) {
+                r.final_grade = this.average(r);
+            }
+        });
+        this.rows.forEach(r => {
+            if (r.has_children && !r.is_override) {
+                r.final_grade = this.groupAverage(r.subject_id);
+            }
+        });
+    },
+
     get currentRows() {
         return this.rows.filter(r => r.grade_level === this.activeGrade);
     },
@@ -109,7 +122,23 @@
             row.final_grade = row.has_children ? this.groupAverage(row.subject_id) : this.average(row);
         }
     },
-}" class="min-h-screen">
+
+    remarksFor(row) {
+        const g = parseFloat(row.final_grade);
+        if (isNaN(g)) return '';
+        if (g >= 90) return 'Outstanding';
+        if (g >= 85) return 'Very Satisfactory';
+        if (g >= 80) return 'Satisfactory';
+        if (g >= 75) return 'Fairly Satisfactory';
+        return 'Failed';
+    },
+
+    remarksClass(row) {
+        const g = parseFloat(row.final_grade);
+        if (isNaN(g)) return 'text-gray-300';
+        return g >= 75 ? 'text-green-700' : 'text-red-600';
+    },
+}" x-init="initFinals()" class="min-h-screen">
 
     <div class="max-w-5xl mx-auto px-6 sm:px-10 lg:px-8 py-4 sm:py-6 lg:py-8">
 
@@ -178,7 +207,8 @@
             </template>
 
             <div x-show="currentRows.length > 0" class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                <table class="w-full text-sm">
+                <div class="overflow-x-auto">
+                <table class="w-full text-sm min-w-[720px]">
                     <thead>
                         <tr class="bg-gray-50 text-gray-500 text-left text-xs uppercase tracking-wide border-b border-gray-100">
                             <th class="px-6 py-3 font-medium">Learning Area</th>
@@ -238,15 +268,14 @@
                                             class="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-0">
                                     </td>
                                     <td class="px-6 py-2">
-                                        <input type="text" x-model="row.remarks"
-                                            :name="'grades[' + row.subject_id + '][remarks]'"
-                                            placeholder="e.g. Passed"
-                                            class="w-full rounded-lg border border-gray-200 py-1.5 px-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                        <span class="text-sm font-medium" :class="remarksClass(row)" x-text="remarksFor(row) || '—'"></span>
+                                        <input type="hidden" :name="'grades[' + row.subject_id + '][remarks]'" :value="remarksFor(row)">
                                     </td>
                                 </tr>
                             </template>
                         </tbody>
                 </table>
+                </div>
 
                 <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex justify-end">
                     <button type="submit"

@@ -2,7 +2,7 @@
     <div id="moleculeField" class="molecule-field"></div>
 
     <div class="loading-core">
-        <p class="loading-text">SQNHS STE LMS</p>
+        <p class="loading-text">SQNHS STE ENROLLMENT SYSTEM</p>
     </div>
 </div>
 

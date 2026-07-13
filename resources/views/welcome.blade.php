@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQNHS STE LMS</title>
+    <title>SQNHS STE ENROLLMENT SYSTEM</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-white text-gray-800 relative">
@@ -13,7 +13,7 @@
     <nav class="border-b border-green-100 px-6 py-4 flex justify-between items-center relative z-10 bg-white">
         <div class="flex items-center gap-3">
             <img src="{{ asset('images/sqnhs-logo.png') }}" alt="SQNHS Logo" class="h-9 w-9 object-contain">
-            <span class="font-semibold text-green-800">SQNHS STE LMS</span>
+            <span class="font-semibold text-green-800">SQNHS STE ENROLLMENT SYSTEM</span>
         </div>
         <div class="flex items-center gap-4">
             <a href="{{ route('login') }}" class="text-sm font-medium text-green-800 hover:underline">Log in</a>
@@ -89,7 +89,7 @@
                 </div>
                 <div class="text-center">
                     <div class="w-10 h-10 mx-auto mb-3 rounded-full bg-green-700 text-white flex items-center justify-center font-bold">4</div>
-                    <p class="font-semibold text-green-900 text-sm mb-1">Access the LMS</p>
+                    <p class="font-semibold text-green-900 text-sm mb-1">Access the platform</p>
                     <p class="text-gray-500 text-xs">Log in to view classes, grades, and school records.</p>
                 </div>
             </div>

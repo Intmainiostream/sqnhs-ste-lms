@@ -28,7 +28,7 @@
             SQNHS has served the municipality of San Quintin, Pangasinan, providing quality secondary education to the community.
         </p>
         <p class="text-gray-600 leading-relaxed">
-            This LMS platform streamlines the enrollment process for STE students from Grade 7 to Grade 10, allowing parents
+            This platform streamlines the enrollment process for STE students from Grade 7 to Grade 10, allowing parents
             and students to register, submit enrollment forms, and track their application status online — reducing the
             need for repeated in-person visits during enrollment season.
         </p>
@@ -105,7 +105,7 @@
                 <div class="sm:col-span-5">
                     <div class="flex items-center gap-2.5 mb-2.5">
                         <img src="{{ asset('images/sqnhs-logo.png') }}" alt="Logo" class="h-9 w-9 object-contain">
-                        <span class="font-bold text-white text-lg tracking-tight" style="font-family: 'Sora', sans-serif;">SQNHS STE LMS</span>
+                        <span class="font-bold text-white text-lg tracking-tight" style="font-family: 'Sora', sans-serif;">SQNHS STE ENROLLMENT SYSTEM</span>
                     </div>
                     <p class="text-slate-400 text-sm leading-relaxed max-w-sm mb-3">
                         Science, Technology & Engineering Program at San Quintin National High School — nurturing young innovators since 1968.

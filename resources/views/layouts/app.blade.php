@@ -4,7 +4,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'SQNHS STE LMS')</title>
+    <title>@yield('title', 'SQNHS STE ENROLLMENT SYSTEM')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-50" x-data="{ sidebarOpen: false }" @keydown.escape.window="sidebarOpen = false">
@@ -21,7 +21,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
             </button>
-            <span class="font-semibold text-green-800 text-sm sm:text-base">SQNHS STE LMS</span>
+            <span class="font-semibold text-green-800 text-sm sm:text-base">SQNHS STE ENROLLMENT SYSTEM</span>
         </div>
         <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-full bg-green-700 text-white flex items-center justify-center text-xs font-bold">

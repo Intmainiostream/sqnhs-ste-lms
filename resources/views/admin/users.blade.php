@@ -110,6 +110,7 @@
                     first_name: this.selectedUser.first_name,
                     last_name: this.selectedUser.last_name,
                     birthdate: this.selectedUser.birthdate,
+                    grade_level: this.selectedUser.grade_level,
                     current_address: this.selectedUser.current_address,
                     permanent_address: this.selectedUser.permanent_address,
                     father_name: this.selectedUser.father_name,
@@ -127,6 +128,7 @@
                     role: this.selectedUser.role, status: this.selectedUser.status,
                     first_name: this.selectedUser.first_name, last_name: this.selectedUser.last_name,
                     birthdate: this.selectedUser.birthdate,
+                    grade_level: this.selectedUser.grade_level,
                     current_address: this.selectedUser.current_address,
                     permanent_address: this.selectedUser.permanent_address,
                     father_name: this.selectedUser.father_name, father_contact: this.selectedUser.father_contact,
@@ -189,7 +191,7 @@
             </svg>
             <div class="relative">
                 <h1 class="text-2xl sm:text-3xl font-bold text-white">Manage Users</h1>
-                <p class="text-green-100 text-sm mt-1">All registered accounts across SQNHS STE LMS</p>
+                <p class="text-green-100 text-sm mt-1">All registered accounts across SQNHS STE ENROLLMENT SYSTEM</p>
             </div>
 
             <div class="relative grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
@@ -416,6 +418,23 @@
                             <input type="date" x-model="selectedUser.birthdate" :readonly="!isEditMode"
                                 :class="{'bg-gray-50 cursor-not-allowed': !isEditMode, 'bg-white': isEditMode}"
                                 class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition-all">
+                        </div>
+
+                        <div x-show="selectedUser.role === 'student' && (selectedUser.grade_level !== null || isEditMode)">
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Grade Level</label>
+                            <div class="relative">
+                                <select x-model.number="selectedUser.grade_level" :disabled="!isEditMode"
+                                    :class="{'bg-gray-50 cursor-not-allowed': !isEditMode, 'bg-white': isEditMode}"
+                                    class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 appearance-none transition-all">
+                                    <option value="7">Grade 7</option>
+                                    <option value="8">Grade 8</option>
+                                    <option value="9">Grade 9</option>
+                                    <option value="10">Grade 10</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-2 flex items-center text-gray-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                </div>
+                            </div>
                         </div>
 
                         <div x-show="selectedUser.first_name !== null || isEditMode">
