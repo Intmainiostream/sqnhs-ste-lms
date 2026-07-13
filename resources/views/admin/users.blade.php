@@ -111,8 +111,6 @@
                     last_name: this.selectedUser.last_name,
                     birthdate: this.selectedUser.birthdate,
                     grade_level: this.selectedUser.grade_level,
-                    current_address: this.selectedUser.current_address,
-                    permanent_address: this.selectedUser.permanent_address,
                     father_name: this.selectedUser.father_name,
                     father_contact: this.selectedUser.father_contact,
                     mother_name: this.selectedUser.mother_name,
@@ -129,8 +127,6 @@
                     first_name: this.selectedUser.first_name, last_name: this.selectedUser.last_name,
                     birthdate: this.selectedUser.birthdate,
                     grade_level: this.selectedUser.grade_level,
-                    current_address: this.selectedUser.current_address,
-                    permanent_address: this.selectedUser.permanent_address,
                     father_name: this.selectedUser.father_name, father_contact: this.selectedUser.father_contact,
                     mother_name: this.selectedUser.mother_name, mother_contact: this.selectedUser.mother_contact,
                     guardian_name: this.selectedUser.guardian_name, guardian_contact: this.selectedUser.guardian_contact,
@@ -437,18 +433,17 @@
                             </div>
                         </div>
 
-                        <div x-show="selectedUser.first_name !== null || isEditMode">
+                        <div x-show="selectedUser.current_address">
                             <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Current Address</label>
-                            <input type="text" x-model="selectedUser.current_address" :readonly="!isEditMode"
-                                :class="{'bg-gray-50 cursor-not-allowed': !isEditMode, 'bg-white': isEditMode}"
-                                class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition-all">
+                            <input type="text" x-model="selectedUser.current_address" readonly
+                                class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50 cursor-not-allowed">
+                            <p class="text-xs text-gray-400 mt-1">Address changes are submitted by the student for approval.</p>
                         </div>
 
-                        <div x-show="selectedUser.first_name !== null || isEditMode">
+                        <div x-show="selectedUser.permanent_address">
                             <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Permanent Address</label>
-                            <input type="text" x-model="selectedUser.permanent_address" :readonly="!isEditMode"
-                                :class="{'bg-gray-50 cursor-not-allowed': !isEditMode, 'bg-white': isEditMode}"
-                                class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition-all">
+                            <input type="text" x-model="selectedUser.permanent_address" readonly
+                                class="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50 cursor-not-allowed">
                         </div>
 
                         <div class="grid grid-cols-2 gap-3" x-show="selectedUser.first_name !== null || isEditMode">

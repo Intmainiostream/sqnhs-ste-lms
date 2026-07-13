@@ -20,8 +20,9 @@ class GradeController extends Controller
             ->orderBy('sort_order')
             ->get();
 
+    
         $existingGrades = StudentGrade::where('student_id', $student->id)
-            ->where('school_year_id', $schoolYear->id)
+            ->orderByDesc('school_year_id')
             ->get()
             ->keyBy('subject_id');
 

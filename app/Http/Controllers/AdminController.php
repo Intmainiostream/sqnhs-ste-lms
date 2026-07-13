@@ -21,26 +21,42 @@ class AdminController extends Controller
 
     public function users()
     {
-     $users = User::with('student')->where('status', '!=', 'pending')->orderBy('role')->orderBy('username')->get()->map(fn ($u) => [
-    'id'                => $u->id,
-    'username'          => $u->username,
-    'email'             => $u->email,
-    'role'              => $u->role,
-    'status'            => $u->status,
-    'created_at'        => $u->created_at->format('F j, Y'),
-    'first_name'        => $u->student->first_name ?? null,
-    'last_name'         => $u->student->last_name ?? null,
-    'grade_level'       => $u->student->grade_level ?? null,
-    'birthdate'         => optional($u->student?->birthdate)->format('Y-m-d'),
-    'current_address'   => $u->student->current_address ?? null,
-    'permanent_address' => $u->student->permanent_address ?? null,
-    'father_name'       => $u->student->father_name ?? null,
-    'father_contact'    => $u->student->father_contact ?? null,
-    'mother_name'       => $u->student->mother_name ?? null,
-    'mother_contact'    => $u->student->mother_contact ?? null,
-    'guardian_name'     => $u->student->guardian_name ?? null,
-    'guardian_contact'  => $u->student->guardian_contact ?? null,
-]);
+     $users = User::with('student')->where('status', '!=', 'pending')->orderBy('role')->orderBy('username')->get()->map(function ($u) {
+        $s = $u->student;
+
+        $currentAddress = $s
+            ? collect([$s->current_house_no, $s->current_street, $s->current_barangay, $s->current_city, $s->current_province, $s->current_zip])
+                ->filter()->implode(', ')
+            : null;
+
+        $permanentAddress = $s
+            ? ($s->same_as_current
+                ? $currentAddress
+                : collect([$s->permanent_house_no, $s->permanent_street, $s->permanent_barangay, $s->permanent_city, $s->permanent_province, $s->permanent_zip])
+                    ->filter()->implode(', '))
+            : null;
+
+        return [
+            'id'                => $u->id,
+            'username'          => $u->username,
+            'email'             => $u->email,
+            'role'              => $u->role,
+            'status'            => $u->status,
+            'created_at'        => $u->created_at->format('F j, Y'),
+            'first_name'        => $s->first_name ?? null,
+            'last_name'         => $s->last_name ?? null,
+            'grade_level'       => $s->grade_level ?? null,
+            'birthdate'         => optional($s?->birthdate)->format('Y-m-d'),
+            'current_address'   => $currentAddress ?: null,
+            'permanent_address' => $permanentAddress ?: null,
+            'father_name'       => $s->father_name ?? null,
+            'father_contact'    => $s->father_contact ?? null,
+            'mother_name'       => $s->mother_name ?? null,
+            'mother_contact'    => $s->mother_contact ?? null,
+            'guardian_name'     => $s->guardian_name ?? null,
+            'guardian_contact'  => $s->guardian_contact ?? null,
+        ];
+    });
 
         return view('admin.users', compact('users'));
     }
@@ -93,8 +109,6 @@ class AdminController extends Controller
         'last_name'         => 'nullable|string|max:100',
         'birthdate'         => 'nullable|date',
         'grade_level'       => 'nullable|integer|min:7|max:10',
-        'current_address'   => 'nullable|string|max:255',
-        'permanent_address' => 'nullable|string|max:255',
         'father_name'       => 'nullable|string|max:150',
         'father_contact'    => 'nullable|string|max:50',
         'mother_name'       => 'nullable|string|max:150',
@@ -112,7 +126,6 @@ class AdminController extends Controller
         $user->student->update(collect($validated)
             ->only([
                 'first_name', 'last_name', 'birthdate', 'grade_level',
-                'current_address', 'permanent_address',
                 'father_name', 'father_contact',
                 'mother_name', 'mother_contact',
                 'guardian_name', 'guardian_contact',

@@ -20,6 +20,12 @@
         </div>
     </div>
 
+    @if($noActiveSchoolYear)
+        <div class="mt-4 bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-lg px-4 py-3">
+            No active school year has been set yet. Grades and averages will appear once one is activated.
+        </div>
+    @endif
+
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
             <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Subjects Enrolled</p>

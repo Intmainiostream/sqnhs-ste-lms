@@ -20,6 +20,12 @@ class EnrollmentController extends Controller
             ]);
         }
 
+        if (!SchoolYear::where('is_active', true)->exists()) {
+            return redirect()->route('register')->withErrors([
+                'username' => 'Enrollment is currently unavailable — no active school year has been set. Please contact the school.',
+            ]);
+        }
+
         return view('enrollment.create', ['gradeLevel' => $pending['grade_level']]);
     }
 
@@ -119,6 +125,12 @@ class EnrollmentController extends Controller
 
         $activeSchoolYear = SchoolYear::where('is_active', true)->first();
 
+        if (!$activeSchoolYear) {
+            return redirect()->route('register')->withErrors([
+                'username' => 'Enrollment is currently unavailable — no active school year has been set. Please contact the school.',
+            ]);
+        }
+
         $user = User::create([
             'username' => $pending['username'],
             'email'    => $pending['email'],
@@ -128,7 +140,7 @@ class EnrollmentController extends Controller
         ]);
 
         $validated['user_id']           = $user->id;
-        $validated['school_year_id']    = $activeSchoolYear?->id;
+        $validated['school_year_id']    = $activeSchoolYear->id;
         $validated['grade_level']       = $pending['grade_level'];
         $validated['enrollment_status'] = 'pending';
 

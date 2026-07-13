@@ -72,14 +72,18 @@ class StudentController extends Controller
         return view('student.dashboard', compact(
             'student', 'schoolYear', 'gradableSubjects', 'gradedCount', 'generalAverage',
             'performance', 'termAverages'
-        ));
+        ))->with('noActiveSchoolYear', !$schoolYear);
     }
 
     public function grades()
     {
         $student = auth()->user()->student;
 
-        $schoolYear = SchoolYear::where('is_active', true)->firstOrFail();
+        $schoolYear = SchoolYear::where('is_active', true)->first();
+
+        if (!$schoolYear) {
+            return back()->with('error', 'No active school year has been set yet. Please check back later or contact the admin.');
+        }
 
         $subjects = Subject::whereNull('parent_subject_id')
             ->whereIn('grade_level', [7, 8, 9, 10])
@@ -87,8 +91,9 @@ class StudentController extends Controller
             ->orderBy('sort_order')
             ->get();
 
+   
         $grades = StudentGrade::where('student_id', $student->id)
-            ->where('school_year_id', $schoolYear->id)
+            ->orderByDesc('school_year_id')
             ->get()
             ->keyBy('subject_id');
 

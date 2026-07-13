@@ -45,6 +45,10 @@ Route::middleware('auth')->group(function () {
 
         Route::get('/students/{student}/grades', [App\Http\Controllers\GradeController::class, 'edit'])->name('students.grades.edit');
         Route::put('/students/{student}/grades', [App\Http\Controllers\GradeController::class, 'update'])->name('students.grades.update');
+
+        Route::get('/school-years', [App\Http\Controllers\SchoolYearController::class, 'index'])->name('school-years');
+        Route::post('/school-years/next', [App\Http\Controllers\SchoolYearController::class, 'storeNext'])->name('school-years.next');
+        Route::delete('/school-years/{schoolYear}', [App\Http\Controllers\SchoolYearController::class, 'destroy'])->name('school-years.destroy');
     });
 
     
