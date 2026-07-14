@@ -143,28 +143,52 @@
     },
 
     confirmDelete(user) {
+        const newStatus = user.status === 'inactive' ? 'active' : 'inactive';
+        const verb = newStatus === 'inactive' ? 'Deactivate' : 'Activate';
+
         this.confirmModal = {
             show: true,
-            message: `Delete ${user.username}? This cannot be undone.`,
+            message: newStatus === 'inactive'
+                ? `Deactivate ${user.username}? They won't be able to log in until reactivated.`
+                : `Reactivate ${user.username}? They will be able to log in again.`,
             onConfirm: async () => {
                 this.isDeleting = true;
                 try {
                     const res = await fetch(`/admin/users/${user.id}`, {
                         method: 'POST',
                         headers: {
+                            'Content-Type': 'application/json',
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
                         },
-                        body: JSON.stringify({ _method: 'DELETE' }),
+                        body: JSON.stringify({
+                            _method: 'PUT',
+                            role: user.role,
+                            status: newStatus,
+                            first_name: user.first_name,
+                            last_name: user.last_name,
+                            birthdate: user.birthdate,
+                            grade_level: user.grade_level,
+                            father_name: user.father_name,
+                            father_contact: user.father_contact,
+                            mother_name: user.mother_name,
+                            mother_contact: user.mother_contact,
+                            guardian_name: user.guardian_name,
+                            guardian_contact: user.guardian_contact,
+                        }),
                     });
                     const data = await res.json();
                     if (res.ok && data.success) {
-                        this.users = this.users.filter(u => u.id !== user.id);
+                        const idx = this.users.findIndex(u => u.id === user.id);
+                        if (idx !== -1) this.users[idx].status = newStatus;
+                        if (this.selectedUser && this.selectedUser.id === user.id) {
+                            this.selectedUser.status = newStatus;
+                        }
                         this.showDetails = false;
                         document.body.style.overflow = 'auto';
-                        this.showToast('User deleted.', 'success');
+                        this.showToast(`User ${newStatus === 'inactive' ? 'deactivated' : 'activated'}.`, 'success');
                     } else {
-                        this.showToast(data.message || 'Delete failed.', 'error');
+                        this.showToast(data.message || `${verb} failed.`, 'error');
                     }
                 } catch (e) {
                     this.showToast('Network error.', 'error');
@@ -532,8 +556,9 @@
 
                     <div class="px-8 py-5 flex items-center justify-between border-t border-gray-100">
                         <button @click="confirmDelete(selectedUser)" :disabled="isDeleting"
-                            class="text-sm font-medium text-red-500 hover:text-red-700 transition-colors">
-                            Delete user
+                            :class="selectedUser.status === 'inactive' ? 'text-green-600 hover:text-green-700' : 'text-red-500 hover:text-red-700'"
+                            class="text-sm font-medium transition-colors">
+                            <span x-text="selectedUser.status === 'inactive' ? 'Activate user' : 'Deactivate user'"></span>
                         </button>
                         <div class="flex gap-2">
                             <template x-if="!isEditMode">
@@ -578,27 +603,45 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
                 </svg>
             </div>
-            <p class="text-sm font-semibold text-gray-800 mb-1">Confirm Deletion</p>
+            <p class="text-sm font-semibold text-gray-800 mb-1">Confirm Action</p>
             <p class="text-sm text-gray-500 mb-6 leading-snug" x-text="confirmModal.message"></p>
             <div class="flex gap-3">
                 <button @click="confirmModal.show = false" class="px-6 py-2.5 text-sm font-semibold rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all">Cancel</button>
-                <button @click="confirmModal.onConfirm(); confirmModal.show = false" class="px-6 py-2.5 text-sm font-semibold rounded-xl bg-red-600 hover:bg-red-700 text-white transition-all">Delete</button>
+                <button @click="confirmModal.onConfirm(); confirmModal.show = false"
+                    :class="selectedUser && selectedUser.status === 'inactive' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'"
+                    class="px-6 py-2.5 text-sm font-semibold rounded-xl text-white transition-all">
+                    <span x-text="selectedUser && selectedUser.status === 'inactive' ? 'Activate' : 'Deactivate'"></span>
+                </button>
             </div>
         </div>
     </div>
 
     {{-- TOAST --}}
-    <div x-show="toast.show" x-cloak
-        x-transition:enter="transition ease-out duration-200"
-        x-transition:enter-start="opacity-0 translate-y-2"
-        x-transition:enter-end="opacity-100 translate-y-0"
-        x-transition:leave="transition ease-in duration-150"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0"
-        class="fixed bottom-6 right-6 z-[70] px-5 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center gap-2"
-        :class="toast.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'"
-        style="display: none;">
-        <span x-text="toast.message"></span>
+    <div x-show="toast.show" x-cloak class="fixed inset-0 z-[70] flex items-center justify-center pointer-events-none" style="display: none;">
+        <div x-show="toast.show"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-90"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            class="bg-white rounded-2xl shadow-2xl flex flex-col items-center text-center px-10 py-8"
+            style="width: 340px;">
+            <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
+                :class="toast.type === 'success' ? 'bg-green-50' : 'bg-red-50'">
+                <template x-if="toast.type === 'success'">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </template>
+                <template x-if="toast.type !== 'success'">
+                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </template>
+            </div>
+            <p class="text-base font-semibold text-gray-800" x-text="toast.message"></p>
+        </div>
     </div>
 
 </div>

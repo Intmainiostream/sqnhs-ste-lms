@@ -44,6 +44,7 @@ class GradeController extends Controller
 
         $subjects = Subject::whereNull('parent_subject_id')
             ->whereIn('grade_level', [7, 8, 9, 10])
+            ->where('grade_level', '<=', $student->grade_level)
             ->with(['children' => fn ($q) => $q->orderBy('sort_order')])
             ->get();
 
@@ -72,9 +73,9 @@ class GradeController extends Controller
             $grade = StudentGrade::firstOrNew([
                 'student_id' => $student->id,
                 'subject_id' => $subject->id,
-                'school_year_id' => $schoolYear->id,
             ]);
 
+            $grade->school_year_id = $grade->school_year_id ?? $schoolYear->id;
             $grade->is_override = $isOverride;
 
             if ($isOverride) {
@@ -101,9 +102,9 @@ class GradeController extends Controller
         $grade = StudentGrade::firstOrNew([
             'student_id' => $student->id,
             'subject_id' => $subjectId,
-            'school_year_id' => $schoolYear->id,
         ]);
 
+        $grade->school_year_id = $grade->school_year_id ?? $schoolYear->id;
         $grade->term1 = $entry['term1'] ?? null;
         $grade->term2 = $entry['term2'] ?? null;
         $grade->term3 = $entry['term3'] ?? null;

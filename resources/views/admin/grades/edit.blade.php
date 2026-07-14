@@ -184,8 +184,11 @@
                             : 'visibility:hidden; background-color:transparent;'">
                         current
                     </span>
-                    <button type="button" @click="activeGrade = grade"
-                        :class="activeGrade === grade ? 'bg-green-600 text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'"
+                    <button type="button" @click="grade <= studentGradeLevel && (activeGrade = grade)"
+                        :disabled="grade > studentGradeLevel"
+                        :class="grade > studentGradeLevel
+                            ? 'bg-gray-50 text-gray-300 border border-gray-100 cursor-not-allowed'
+                            : (activeGrade === grade ? 'bg-green-600 text-white' : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50')"
                         class="px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200">
                         Grade <span x-text="grade"></span>
                     </button>
